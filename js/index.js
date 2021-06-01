@@ -16,19 +16,30 @@ tinymce.init({
   });
 
   const pokemones=[]; // definicion de un arreglo en javascript
-  const eliminar = function(){
+  const eliminar = async function(){ // asysnc es para cuando se espera una respuesta con un await
+
+    let res = await Swal.fire({
+        title:"Desea enviar el pokemon al profesor oak? ",
+        showCancelButton: true,
+        confirmButtonText:"Enviar!"
+    });
       
-    //1.Saber que boton fue el que se apreto 
-    console.log(this.nro);
-    //2.Sacar el nro del boton
-    let nro = this.nro;
+    // La persona dijo que si ? , entonces que realice todo este proceso
+    if(res.isConfirmed){
 
-    //3.Eliminar el pokemon de la lista
-     pokemones.splice(nro,1);
-
-    //4.Recargar la tabla 
-    cargarTabla();
-  }
+        //1.Saber que boton fue el que se apreto
+        //2.Sacar el nro del boton
+        let nro = this.nro;
+        //3.Eliminar el pokemon de la lista
+        pokemones.splice(nro,1);
+        //4.Recargar la tabla 
+        cargarTabla();
+    
+    // y si la persona  dijo que no ? 
+    }else{
+        Swal.fire("Operacion cancelada");
+    }
+  };
 
 
   const cargarTabla=()=>{
@@ -46,6 +57,7 @@ tinymce.init({
             //Puedo crear cualquier etiqueta html aqui (h1,table,td,tr,etc...)
              //Crea un elemento que no existe, pero no lo agrega a la pagina
             let tr=document.createElement("tr");
+
             //3.Por cada atributo de los pokemon (nombre,tipo,etc..) generar una celda
             let tdNombre=document.createElement("td");
             let tdTipo=document.createElement("td");
@@ -112,25 +124,53 @@ tinymce.init({
     //addevent...= es un funcion que ademas es  escuchador que si lo encuentra lo reproduzca.
     //listener es un escuchardor de un evento por ejemplo cuando la persona mande el formulario//
 
-document.querySelector("#pokemon-form").addEventListener('submit',(e)=>{
-    e.preventDefault();//Previene que el formulario recargue la pagina
+    document.querySelector("#pokemon-form").addEventListener('submit',(e)=>{
+      e.preventDefault();//Previene que el formulario recargue la pagina
 
-    let nombre=document.querySelector("#nombre-txt").value;//LET para definir para una variable
-    let descripcion=tinymce.get("descripcion-txt").getContent();
-    let legendario= document.querySelector("#legendario-si").checked;
-    let tipo= document.querySelector("#tipo-select").value;
+      let nombre=document.querySelector("#nombre-txt").value;//LET para definir para una variable
+      let descripcion=tinymce.get("descripcion-txt").getContent();
+      let legendario= document.querySelector("#legendario-si").checked;
+      let tipo= document.querySelector("#tipo-select").value;
 
-    //console.log es para mostrar los datos por el inspector al dar click derecho
-    //console.log("hola mi rey",nombre,descripcion,legendario,tipo);//
+     // si es valido sera correcto y en el caso que no lo es sera :
+      let esValido= true;
+      document.querySelector("#nombre-txt").classList.remove("is-invalid");
+      document.querySelector("#descripcion-txt").classList.remove("is-invalid");
 
-    let pokemon={};
-    pokemon.nombre=nombre;
-    pokemon.descripcion=descripcion;
-    pokemon.legendario=legendario;
-    pokemon.tipo=tipo;
-    pokemones.push(pokemon);
-    cargarTabla();
+      if(nombre.trim()==""){ // el trim te borra los espacios que haya escrito la persona para ajustarlo bien
+          document.querySelector("#nombre-txt").classList.add("is-invalid");
+          esValido = false;
+      }
 
-             //titulo de ventana , texto que va en el cuerpo y el tipo signo que aparecera en el mensaje
-    Swal.fire("Registro existoso","Pokemon registrado correctamente!!","success");
-});
+      if(descripcion.trim()==""){
+          document.querySelector("#descripcion-txt").classList.add("is-invalid");
+          esValido = false;
+      }
+
+      if(esValido){
+
+          //console.log es para mostrar los datos por el inspector al dar click derecho
+          //console.log("hola mi rey",nombre,descripcion,legendario,tipo);//
+          let pokemon ={};
+          pokemon.nombre=nombre;
+          pokemon.descripcion=descripcion;
+          pokemon.legendario=legendario;
+          pokemon.tipo=tipo;
+          pokemones.push(pokemon);
+          cargarTabla();
+          //titulo de ventana , texto que va en el cuerpo y el tipo signo que aparecera en el mensaje
+          Swal.fire("Registro existoso","Pokemon registrado correctamente!!","success");
+        }
+    });
+
+
+    document.querySelector("#limpiar-btn").addEventListener("click", ()=>{
+       //limpiar los elementos 
+       document.querySelector("#nombre-txt").value = "";
+       //Limpiar un tinymce
+       tinymce.get("descripcion-txt").setContent(""); // NO COLOCAR # QUE NO SIRVE CON EL!!!
+       //limpiar si es legendario si/no
+       document.querySelector("#legendario-si").checked = true;
+       //limpiar un select (tambien seleccionando la primera opcion)
+       document.querySelector("#tipo-select").value="1";
+    });
