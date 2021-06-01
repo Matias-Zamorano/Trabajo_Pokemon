@@ -16,7 +16,21 @@ tinymce.init({
   });
 
   const pokemones=[]; // definicion de un arreglo en javascript
-  
+  const eliminar = function(){
+      
+    //1.Saber que boton fue el que se apreto 
+    console.log(this.nro);
+    //2.Sacar el nro del boton
+    let nro = this.nro;
+
+    //3.Eliminar el pokemon de la lista
+     pokemones.splice(nro,1);
+
+    //4.Recargar la tabla 
+    cargarTabla();
+  }
+
+
   const cargarTabla=()=>{
         //1.Una referencia a la tabla , conectar la tabla con los datos
         let tbody = document.querySelector("#tbody-pokemon"); //# el gato representa id , tambien se podria buscar con . en el caso que estuviera adentro de algo
@@ -39,13 +53,46 @@ tinymce.init({
             let tdNro=document.createElement("td");
             let tdAcciones=document.createElement("td");
 
+            //TODO :(esto no lo voy hacer ahora pero si despues)
             //innerText= texto interno , muestra tal cual el codigo pot ejemplo si hay un espacio lo escribe en modo codigo
             tdNombre.innerText = p.nombre; //define al texto a esta zelda que esta guardado en el nro 2.
-            tdTipo.innerText   = p.tipo;
-            //TODO :(esto no lo voy hacer ahora pero si despues), esto no va funcionar a la primera
+            
+            //esto mostraria el icono en ves de un numero al momento de elegir el tipo de pokemon
+            let icono = document.createElement("i");
+            //Si elige el 1  agregar el icono agua o :
+            if(p.tipo == "1"){
+                icono.classList.add("fas","fa-tint","text-primary","fa-2x");//<i class="fas fa-tint"></i>
+            
+            //En el caso de que eliga el 2 agregar el icono fuego 
+            } else if (p.tipo == "2"){
+                icono.classList.add("fas","fa-burn","text-danger","fa-2x");//<i class="fas fa-burn"></i>
+
+            //En el caso de que eliga el 3 agregar el icono planta
+            } else if (p.tipo == "3"){
+                icono.classList.add("fas","fa-leaf","text-success","fa-2x");//<i class="fas fa-leaf"></i>
+            
+            //En el caso de que eliga el 4 agregar el icono electro
+            }else{
+                icono.classList.add("fas","fa-bolt","text-warning","fa-2x");//<i class="fas fa-bolt"></i>
+            }
+            tdTipo.classList.add("text-center");
+            tdTipo.appendChild(icono);
+            
             tdDescripcion.innerHTML = p.descripcion;
             tdNro.innerText = i + 1;
-            //TODO: como agrego un boton para las acciones?
+
+            //como agrego un boton para las acciones?
+            let boton = document.createElement("button");   // Creo el boton
+            boton.nro = i;                                  // guardar cualquier cosa en un elemento HTML
+            boton.addEventListener("click",eliminar)         // al apretar el click dara un funcion que es eliminar
+            boton.innerText = "Enviar al profe oak";        // Agrego informacion al boton
+            boton.classList.add("btn","btn-danger")         // Hace que el boton sea rojo
+            tdAcciones.classList.add("text-center");        // Hace que el mensaje este centrado
+            tdAcciones.appendChild(boton);                  // Agrego el boton al td
+
+            //como hacer que el boton se elimine ? 
+
+
             tr.appendChild(tdNro);
             tr.appendChild(tdNombre);
             tr.appendChild(tdTipo);
@@ -83,5 +130,7 @@ document.querySelector("#pokemon-form").addEventListener('submit',(e)=>{
     pokemon.tipo=tipo;
     pokemones.push(pokemon);
     cargarTabla();
-    Swal.fire("Pokemon registrado correctamente!!");
+
+             //titulo de ventana , texto que va en el cuerpo y el tipo signo que aparecera en el mensaje
+    Swal.fire("Registro existoso","Pokemon registrado correctamente!!","success");
 });
